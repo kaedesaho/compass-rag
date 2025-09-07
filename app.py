@@ -20,7 +20,7 @@ EMBEDDING_MODEL = "nomic-embed-text"
 VECTOR_STORE_NAME = "simple-rag"
 PERSIST_DICTIONARY = "./chroma_db"
 
-def ingest_pdf(doc_path):
+def load_pdf(doc_path):
     if os.path.exists(doc_path):
         loader = UnstructuredPDFLoader(file_path=doc_path)
         data = loader.load()
@@ -57,7 +57,7 @@ def load_vector_db():
             persist_directory=PERSIST_DICTIONARY,
         )
     
-    data = ingest_pdf(DOC_PATH)
+    data = load_pdf(DOC_PATH)
     if data is None:
         return None
     
@@ -77,10 +77,10 @@ def create_retriever(vector_db, llm):
     QUERY_PROMPT = PromptTemplate(
         input_variables=["question"],
         template="""You are an AI language model assistant. Your task is to generate five 
-        diffrrent versio of the given user question to retrieve relevantdocuments from 
+        diffrrent versions of the given user question to retrieve relevant documents from 
         a vector database. By generating multiple perspectives on the user question, your
         goal is to help the user  overcome some of the limitations of the distance-based
-        similarity search. Provide these alternative questions separated by newslines.
+        similarity search. Provide these alternative questions separated by new lines.
         Original question: {question}"""
     )
 
@@ -110,7 +110,7 @@ def create_chain(retriever, llm):
     return chain
 
 def main():
-    st.title("Document Assistant")
+    st.title("Cornell College Compass Q&A")
 
     user_input = st.text_input("Enter your question:", "")
 
@@ -127,13 +127,16 @@ def main():
                 chain = create_chain(retriever, llm)
                 response = chain.invoke(input=user_input)
 
-                st.markdown("**Asistant:**")
+                st.markdown("**Response:**")
+
                 st.write(response)
+
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
             
     else:
-        st.info("Please enter a question to get started.")
+        st.info("""This tool lets you ask questions about Cornell College’s student policies.
+                It uses The Compass handbook to provide accurate answers about residential rules, academic guidelines, financial policies, and more.""")
 
 if __name__ == "__main__":
     main()
