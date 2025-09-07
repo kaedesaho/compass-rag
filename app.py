@@ -3,14 +3,13 @@ import os
 import logging
 import pdfplumber
 from langchain.docstore.document import Document
-from langchain_community.vectorstores import Chroma
+from langchain.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_ollama import OllamaEmbeddings
-from langchain_ollama import ChatOllama
+from langchain_ollama import OllamaEmbeddings, ChatOllama
 import ollama
 
 logging.basicConfig(level=logging.INFO)
@@ -18,8 +17,8 @@ logging.basicConfig(level=logging.INFO)
 DOC_PATH = "./data/compass.pdf"
 MODEL_NAME = "llama3.1"
 EMBEDDING_MODEL = "nomic-embed-text"
-VECTOR_STORE_NAME = "simple-rag"
-PERSIST_DICTIONARY = "./chroma_db"
+VECTOR_STORE_PATH = "simple-rag"
+PERSIST_DICTIONARY = "./faiss_indexb"
 
 def load_pdf(doc_path):
     if os.path.exists(doc_path):
@@ -55,27 +54,19 @@ def load_embedding():
 def load_vector_db():
     embedding = load_embedding()
 
-    if os.path.exists(PERSIST_DICTIONARY):
-        return Chroma(
-            embedding_function=embedding,
-            collection_name=VECTOR_STORE_NAME,
-            persist_directory=PERSIST_DICTIONARY,
-        )
+    if os.path.exists(VECTOR_STORE_PATH):
+        return FAISS.load_local(VECTOR_STORE_PATH, embedding)
+
     
-    data = load_pdf(DOC_PATH)
-    if data is None:
+    documents = load_pdf(DOC_PATH)
+    if documents is None:
         return None
     
-    chunks = split_documents(data)
+    chunks = split_documents(documents)
+    vector_db = FAISS.from_documents(chunks, embedding)
+    vector_db.save_local(VECTOR_STORE_PATH)
 
-    vector_db = Chroma.from_documents(
-        documents=chunks,
-        embedding=embedding,
-        collection_name=VECTOR_STORE_NAME,
-        persist_directory=PERSIST_DICTIONARY
-    )
-    vector_db.persist()
-
+    logging.info("FAISS vector store created and saved locally.")
     return vector_db
 
 def create_retriever(vector_db, llm):
