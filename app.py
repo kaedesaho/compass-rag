@@ -55,7 +55,7 @@ def load_vector_db():
     embedding = load_embedding()
 
     if os.path.exists(VECTOR_STORE_PATH):
-        return FAISS.load_local(VECTOR_STORE_PATH, embedding)
+        return FAISS.load_local(VECTOR_STORE_PATH, embedding, allow_dangerous_deserialization=True)
 
     
     documents = load_pdf(DOC_PATH)
