@@ -12,6 +12,9 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 import ollama
 
+os.environ["MPLBACKEND"] = "Agg"
+os.environ["UNSTRUCTURED_ENABLE_OPENGL"] = "0"
+
 
 logging.basicConfig(level=logging.INFO)
 
