@@ -1,7 +1,8 @@
 import streamlit as st
 import os
 import logging
-from langchain_community.document_loaders import UnstructuredPDFLoader
+import pdfplumber
+from langchain.docstore.document import Document
 from langchain_community.vectorstores import Chroma
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
@@ -11,10 +12,6 @@ from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 import ollama
-
-os.environ["MPLBACKEND"] = "Agg"
-os.environ["UNSTRUCTURED_ENABLE_OPENGL"] = "0"
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,10 +23,14 @@ PERSIST_DICTIONARY = "./chroma_db"
 
 def load_pdf(doc_path):
     if os.path.exists(doc_path):
-        loader = UnstructuredPDFLoader(file_path=doc_path)
-        data = loader.load()
+        texts = []
+        with pdfplumber.open(doc_path) as pdf:
+            for page in pdf.pages:
+                text = page.extract_text()
+                if text:
+                    texts.append(text)
         logging.info("PDF loaded successfully.")
-        return data
+        return [Document(page_content=t) for t in texts]
     else:
         logging.error(f"PDF file not found at path: {doc_path}")
         st.error("PDF file not found.")
