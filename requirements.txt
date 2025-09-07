@@ -7,7 +7,7 @@ langchain-ollama
 langchain-community
 langchain_text_splitters
 unstructured
-unstructured[all-docs]
+unstructured[pdf]
 fastembed
 sentence-transformers
 elevenlabs

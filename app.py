@@ -12,8 +12,6 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 import ollama
 
-import matplotlib
-matplotlib.use("Agg")
 
 logging.basicConfig(level=logging.INFO)
 
