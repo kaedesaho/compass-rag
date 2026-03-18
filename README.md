@@ -3,7 +3,7 @@
 
 A local RAG (Retrieval-Augmented Generation) application that lets you ask questions about Cornell College's student policies using the Compass handbook.
 
-![App Screenshot](assets/app.png)
+<img src="assets/app.png" width="700"/>
 
 ## How it works
 
