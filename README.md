@@ -3,6 +3,8 @@
 
 A local RAG (Retrieval-Augmented Generation) application that lets you ask questions about Cornell College's student policies using the Compass handbook.
 
+![App Screenshot](assets/app.png)
+
 ## How it works
 
 1. The app loads and chunks the Compass PDF handbook
@@ -48,6 +50,8 @@ Compass-RAG/
 ├── data/
 │   └── compass.pdf     # Cornell College Compass handbook
 ├── faiss-db/           # Generated FAISS vector index (auto-created)
+├── assets/
+│   └── app.png             # App screenshot
 ├── requirements.txt
 └── .devcontainer/
     └── devcontainer.json
