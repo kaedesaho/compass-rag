@@ -9,16 +9,16 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_ollama import OllamaEmbeddings, ChatOllama
-import ollama
+from langchain_ollama import OllamaEmbeddings
+from langchain_community.llms import Ollama
+
 
 logging.basicConfig(level=logging.INFO)
 
 DOC_PATH = "./data/compass.pdf"
 MODEL_NAME = "llama3.1"
 EMBEDDING_MODEL = "nomic-embed-text"
-VECTOR_STORE_PATH = "simple-rag"
-PERSIST_DICTIONARY = "./faiss_indexb"
+VECTOR_STORE_PATH = "faiss-db"
 
 def load_pdf(doc_path):
     if os.path.exists(doc_path):
@@ -44,7 +44,7 @@ def split_documents(documents):
 
 @st.cache_resource
 def load_llm():
-    return ChatOllama(model=MODEL_NAME)    
+    return Ollama(model=MODEL_NAME)
 
 @st.cache_resource
 def load_embedding():
@@ -54,7 +54,7 @@ def load_embedding():
 def load_vector_db():
     embedding = load_embedding()
 
-    if os.path.exists(VECTOR_STORE_PATH):
+    if os.path.exists(os.path.join(VECTOR_STORE_PATH, "index.faiss")):
         return FAISS.load_local(VECTOR_STORE_PATH, embedding, allow_dangerous_deserialization=True)
 
     
